@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-g">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Recommender</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .search-form { text-align: center; margin-bottom: 30px; }
+        select, button { padding: 10px 15px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #007BFF; color: white; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #results { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
+        .book-card { width: 180px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center; background: #fafafa; }
+        .book-card img { width: 150px; height: 220px; object-fit: cover; border-radius: 5px; }
+        .book-card h3 { font-size: 16px; color: #333; height: 3em; overflow: hidden; }
+        .book-card p { font-size: 14px; color: #666; }
+        #loading { text-align: center; font-size: 18px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Book Recommender</h1>
+        <div class="search-form">
+            <form id="recommend-form">
+                <select id="book_name" name="book_name">
+                    <option value="" disabled selected>Select a book you like</option>
+                    {% for title in book_titles %}
+                        <option value="{{ title }}">{{ title }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Recommend</button>
+            </form>
+        </div>
+
+        <div id="loading">Loading recommendations...</div>
+        <div id="results">
+            </div>
+    </div>
+
+    <script>
+        document.getElementById('recommend-form').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Stop the form from submitting normally
+
+            let bookName = document.getElementById('book_name').value;
+            if (!bookName) return;
+
+            let resultsDiv = document.getElementById('results');
+            let loadingDiv = document.getElementById('loading');
+
+            resultsDiv.innerHTML = ''; // Clear old results
+            loadingDiv.style.display = 'block'; // Show loading
+
+            try {
+                let formData = new FormData();
+                formData.append('book_name', bookName);
+
+                let response = await fetch('/recommend', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let recommendations = await response.json();
+                loadingDiv.style.display = 'none'; // Hide loading
+
+                if (recommendations.error) {
+                    resultsDiv.innerHTML = `<p>Error: ${recommendations.error}</p>`;
+                } else {
+                    recommendations.forEach(book => {
+                        let card = `
+                            <div class="book-card">
+                                <img src="${book['Image-URL-M']}" alt="Cover of ${book['Book-Title']}">
+                                <h3>${book['Book-Title']}</h3>
+                                <p>${book['Book-Author']}</p>
+                            </div>
+                        `;
+                        resultsDiv.innerHTML += card;
+                    });
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultsDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

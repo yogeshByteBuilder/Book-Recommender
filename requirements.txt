@@ -77,7 +77,6 @@ pyjokes==0.7.2
 python-dateutil==2.8.2
 python-json-logger==2.0.7
 pytz==2023.3
-pywin32==306
 pywinpty==2.0.13
 PyYAML==6.0.2
 pyzbar==0.1.9

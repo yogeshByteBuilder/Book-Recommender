@@ -1,0 +1,10 @@
+# Ignore Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Ignore data files
+*.csv
+*.pkl
+
+# Ignore Python cache
+__pycache__/
+*.pyc

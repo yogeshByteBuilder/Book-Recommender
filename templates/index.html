@@ -1,161 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Recommender</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    
-    <style>
-        :root {
-            --primary-color: #007BFF;
-            --secondary-color: #f8f9fa;
-            --text-color: #333;
-            --border-color: #dee2e6;
-            --card-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            --danger-color: #dc3545;
-        }
-        
-        body {
-            font-family: 'Lato', Arial, sans-serif;
-            background-color: var(--secondary-color);
-            margin: 0;
-            padding: 2rem;
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: auto;
-            background: #fff;
-            padding: 2rem 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-        }
-        
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 2rem;
-            font-weight: 700;
-        }
-        
-        .search-form {
-            text-align: center;
-            margin-bottom: 3rem;
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 1rem;
-            align-items: start; /* Aligns items to the top */
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Recommender</title>
+  <style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: #e9ecef;
+        color: #24292e;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 6px;
+        border: 1px solid #d0d7de;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+        text-align: center;
+        color: #495057;
+        margin-bottom: 2rem;
+    }
+
+    /* Search Form Layout */
+    form {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    input[type="text"] {
+        flex-grow: 1;
+        padding: 0.65rem 0.9rem;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        background-color: #ffffff;
+        box-sizing: border-box;
+    }
+
+    button {
+        padding: 0.65rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        flex-shrink: 0;
+    }
+
+    button:hover {
+        background-color: #5a6268;
+    }
+
+    #results {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .book-card {
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        background: #ffffff;
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .book-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .book-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .img-placeholder {
+        width: 100%;
+        height: 250px;
+        background-color: #f1f3f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .card-content {
+        padding: 1rem;
+    }
+
+    .card-content h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+        color: #343a40;
+    }
+
+    .card-content p {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    #loader {
+        display: none;
+        text-align: center;
+        font-size: 1.2rem;
+        margin: 2rem;
+    }
+
+    #error-container {
+        display: none;
+        color: #842029;
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive Fix for Mobile */
+    @media (max-width: 600px) {
+        form {
+            flex-direction: column;
+            align-items: stretch;
         }
 
-        .search-wrapper {
+        input[type="text"],
+        button {
             width: 100%;
-            text-align: left;
-        }
-
-        .select2-container {
-            width: 100% !important;
-        }
-        
-        .search-button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem; /* fixed height, not oversized */
             font-size: 1rem;
-            border-radius: 8px;
-            border: none;
-            background-color: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            height: 48.5px; /* Matches Select2 height */
-        }
-        
-        .search-button:hover {
-            background-color: #0056b3;
-        }
-        
-        /* Loading Spinner */
-        #loader {
-            display: none;
-            width: 48px;
-            height: 48px;
-            border: 5px solid #FFF;
-            border-bottom-color: var(--primary-color);
-            border-radius: 50%;
-            margin: 2rem auto;
-            animation: rotation 1s linear infinite;
-        }
-        
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
-        /* Error, Empty, and Results Containers */
-        #error-container {
-            display: none;
-            background-color: #fff6f6;
-            color: var(--danger-color);
-            border: 1px solid var(--danger-color);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            text-align: center;
+        button {
+            margin-top: 0.5rem;
         }
+    }
+</style>
 
-        #empty-state {
-            text-align: center;
-            color: #888;
-            font-size: 1.1rem;
-            margin: 3rem 0;
-        }
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Book Recommender</h1>
 
-        #results {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .book-card {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            text-align: center;
-            background: #fff;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-            /* Animation */
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    <div class="form-wrapper">
+      <form id="recommend-form">
+        <input
+          type="text"
+          id="book-search"
+          list="book-titles"
+          placeholder="Type a book title..."
+          autocomplete="off"
+        />
+        <datalist id="book-titles">
+          {% for title in book_titles %}
+          <option value="{{ title }}">
+          {% endfor %}
+        </datalist>
 
-        .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        <div class="btn-div">
+          <button type="submit">Recommend</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="loader">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="error-container"></div>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function isValidHttpUrl(string) {
+      try {
+        const url = new URL(string);
+        return url.protocol === "http:" || url.protocol === "https:";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    document
+      .getElementById("recommend-form")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+        let bookName = document.getElementById("book-search").value;
+        if (!bookName) return;
+
+        let resultsDiv = document.getElementById("results");
+        let loader = document.getElementById("loader");
+        let errorContainer = document.getElementById("error-container");
+
+        resultsDiv.innerHTML = "";
+        loader.style.display = "block";
+        errorContainer.style.display = "none";
+
+        try {
+          let formData = new FormData();
+          formData.append("book_name", bookName);
+
+          let response = await fetch("/recommend", {
+            method: "POST",
+            body: formData,
+          });
+
+          let recommendations = await response.json();
+          loader.style.display = "none";
+
+          if (recommendations.error) {
+            errorContainer.innerText = `An error occurred: ${recommendations.error}`;
+            errorContainer.style.display = "block";
+          } else if (recommendations.length === 0) {
+            errorContainer.innerText =
+              "No recommendations found for this book.";
+            errorContainer.style.display = "block";
+          } else {
+            recommendations.forEach((book) => {
+              let imageUrl = book["Image-URL-M"];
+              let imageHtml = "";
+
+              if (isValidHttpUrl(imageUrl)) {
+                imageHtml = `<img src="${imageUrl}" alt="Cover of ${book["Book-Title"]}">`;
+              } else {
+                imageHtml = `<div class="img-placeholder">No Image Available</div>`;
+              }
+
+              let card = `
+                            <div class="book-card">
+                                ${imageHtml}
+                                <div class="card-content">
+                                    <h3>${book["Book-Title"]}</h3>
+                                    <p>${book["Book-Author"]}</p>
+                                </div>
+                            </div>
+                        `;
+              resultsDiv.innerHTML += card;
+            });
+          }
+        } catch (error) {
+          loader.style.display = "none";
+          errorContainer.innerText =
+            "A network error occurred. Please try again.";
+          errorContainer.style.display = "block";
+          console.error("Error:", error);
         }
-        
-        .book-card .img-wrapper {
-            width: 100%;
-            height: 250px;
-            background-color: #f0f0f0; /* Placeholder bg */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #aaa;
+      });
+  </script>
+</body>
+</html>

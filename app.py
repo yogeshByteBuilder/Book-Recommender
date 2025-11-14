@@ -26,23 +26,25 @@ def home():
 def recommend():
     try:
         book_name = request.form.get('book_name')
-        index = np.where(pt.index == book_name)[0][0]
+        matches = np.where(pt.index == book_name)[0]
+        if len(matches) == 0:
+            # Book not found, return custom message
+            return jsonify({"error": "Sorry, the book you entered was not found in our database."})
+        index = matches[0]
         similar_items = sorted(list(enumerate(similarity_scores[index])), key=lambda x: x[1], reverse=True)[1:6]
-
         recommended_books_data = []
         for item in similar_items:
             temp_book_title = pt.index[item[0]]
             book_details = book_info[book_info['Book-Title'] == temp_book_title].iloc[0]
-
             recommended_books_data.append({
                 'Book-Title': book_details['Book-Title'],
                 'Book-Author': book_details['Book-Author'],
                 'Image-URL-M': book_details['Image-URL-M']
             })
         return jsonify(recommended_books_data)
-
     except Exception as e:
         return jsonify({"error": str(e)})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
